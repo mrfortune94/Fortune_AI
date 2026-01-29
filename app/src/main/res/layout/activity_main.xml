@@ -6,10 +6,54 @@
     android:padding="16dp"
     android:background="#121212">
 
+    <!-- API Key Input - Shown on first launch -->
+    <LinearLayout
+        android:id="@+id/apiKeyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible"  <!-- Start visible -->
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enter your xAI Grok API Key (starts with sk-)"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/apiKeyInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="sk-..."
+            android:inputType="textVisiblePassword"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:backgroundTint="#444444"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/saveKeyButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save & Start Chatting"
+            android:backgroundTint="#FF4081"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <!-- Main Chat UI - Hidden until key saved -->
     <ScrollView
+        android:id="@+id/chatScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/chatText"
@@ -18,8 +62,7 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:padding="12dp"
-            android:background="#1E1E1E"
-            android:layout_marginBottom="8dp" />
+            android:background="#1E1E1E" />
     </ScrollView>
 
     <EditText
@@ -30,7 +73,8 @@
         android:textColor="#FFFFFF"
         android:textColorHint="#AAAAAA"
         android:backgroundTint="#333333"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/sendButton"
@@ -39,7 +83,8 @@
         android:text="Send"
         android:backgroundTint="#FF4081"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/imagePromptInput"
@@ -49,8 +94,9 @@
         android:textColor="#FFFFFF"
         android:textColorHint="#AAAAAA"
         android:backgroundTint="#333333"
+        android:padding="12dp"
         android:layout_marginTop="16dp"
-        android:padding="12dp" />
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/generateImageButton"
@@ -59,7 +105,8 @@
         android:text="Generate Image"
         android:backgroundTint="#FF4081"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/generatedImage"
