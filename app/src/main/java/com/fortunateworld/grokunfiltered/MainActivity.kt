@@ -1,5 +1,6 @@
 package com.fortunateworld.grokunfiltered
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -12,11 +13,59 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val grokApi = ApiClient.grokApi
     private val messages = mutableListOf<String>()
+    private val prefs by lazy { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Check if key is saved
+        val savedKey = prefs.getString("grok_api_key", null)
+        if (savedKey.isNullOrBlank()) {
+            // Show key input, hide chat UI
+            binding.apiKeyLayout.visibility = View.VISIBLE
+            binding.chatScroll.visibility = View.GONE
+            binding.messageInput.visibility = View.GONE
+            binding.sendButton.visibility = View.GONE
+            binding.imagePromptInput.visibility = View.GONE
+            binding.generateImageButton.visibility = View.GONE
+            binding.generatedImage.visibility = View.GONE
+        } else {
+            // Key saved – hide input, show chat, set key
+            binding.apiKeyLayout.visibility = View.GONE
+            binding.chatScroll.visibility = View.VISIBLE
+            binding.messageInput.visibility = View.VISIBLE
+            binding.sendButton.visibility = View.VISIBLE
+            binding.imagePromptInput.visibility = View.VISIBLE
+            binding.generateImageButton.visibility = View.VISIBLE
+            binding.generatedImage.visibility = View.GONE  // Hidden until gen
+
+            ApiClient.updateApiKey(savedKey)
+            messages.add("Grok: Key loaded! Ready to get filthy 😈💦")
+            updateChat()
+        }
+
+        // Save key button
+        binding.saveKeyButton.setOnClickListener {
+            val key = binding.apiKeyInput.text.toString().trim()
+            if (key.startsWith("sk-") && key.length > 30) {
+                prefs.edit().putString("grok_api_key", key).apply()
+                ApiClient.updateApiKey(key)
+                binding.apiKeyLayout.visibility = View.GONE
+                binding.chatScroll.visibility = View.VISIBLE
+                binding.messageInput.visibility = View.VISIBLE
+                binding.sendButton.visibility = View.VISIBLE
+                binding.imagePromptInput.visibility = View.VISIBLE
+                binding.generateImageButton.visibility = View.VISIBLE
+
+                messages.add("Grok: Key saved! Let's play dirty 💋")
+                updateChat()
+            } else {
+                messages.add("Grok: Invalid key – must start with sk- and be long enough.")
+                updateChat()
+            }
+        }
 
         binding.sendButton.setOnClickListener { sendMessage() }
         binding.generateImageButton.setOnClickListener { generateImage() }
@@ -66,11 +115,14 @@ class MainActivity : AppCompatActivity() {
                 binding.generatedImage.load(url)
             } catch (e: Exception) {
                 binding.generatedImage.setImageResource(android.R.drawable.ic_delete)
+                messages.add("Error generating image: ${e.message}")
+                updateChat()
             }
         }
     }
 
     private fun updateChat() {
         binding.chatText.text = messages.joinToString("\n\n")
+        binding.chatScroll.fullScroll(View.FOCUS_DOWN)  // Scroll to bottom
     }
 }
