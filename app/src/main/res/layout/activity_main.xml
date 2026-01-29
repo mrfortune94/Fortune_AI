@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#121212">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -14,44 +15,58 @@
             android:id="@+id/chatText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
             android:textColor="#FFFFFF"
-            android:background="#111111"
-            android:padding="8dp" />
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:background="#1E1E1E"
+            android:layout_marginBottom="8dp" />
     </ScrollView>
 
     <EditText
         android:id="@+id/messageInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Talk to Grok babe..."
+        android:hint="Talk dirty to Grok..."
         android:textColor="#FFFFFF"
-        android:backgroundTint="#333333" />
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:padding="12dp" />
 
     <Button
         android:id="@+id/sendButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send filthy message" />
+        android:text="Send"
+        android:backgroundTint="#FF4081"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="8dp" />
 
     <EditText
         android:id="@+id/imagePromptInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Prompt for Grok babe pic (explicit OK)"
+        android:hint="Prompt for XXX Grok babe pic"
         android:textColor="#FFFFFF"
-        android:backgroundTint="#333333" />
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:layout_marginTop="16dp"
+        android:padding="12dp" />
 
     <Button
         android:id="@+id/generateImageButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate XXX Grok pic" />
+        android:text="Generate Image"
+        android:backgroundTint="#FF4081"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="8dp" />
 
     <ImageView
         android:id="@+id/generatedImage"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:scaleType="centerCrop"
-        android:visibility="gone" />
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:contentDescription="Generated Grok babe" />
 </LinearLayout>
