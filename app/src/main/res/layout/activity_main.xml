@@ -41,7 +41,7 @@
             android:id="@+id/saveKeyButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Save & Start Chatting"
+            android:text="Save &amp; Start Chatting"
             android:backgroundTint="#FF4081"
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
