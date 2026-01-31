@@ -1,6 +1,5 @@
 package com.fortunateworld.grokunfiltered
 
-import com.fortunateworld.grokunfiltered.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,11 +8,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient {
     private const val BASE_URL = "https://api.x.ai/v1/"
 
+    private var apiKey: String = ""
+
+    fun updateApiKey(newKey: String) {
+        apiKey = newKey
+    }
+
     val grokApi: GrokApi by lazy {
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer ${BuildConfig.GROK_API_KEY}")
+                    .addHeader("Authorization", "Bearer $apiKey")
                     .build()
                 chain.proceed(request)
             }
