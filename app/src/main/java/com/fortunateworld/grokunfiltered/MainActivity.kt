@@ -182,9 +182,6 @@ class MainActivity : AppCompatActivity() {
         val durationStr = binding.videoDurationSpinner.selectedItem.toString()
         val duration = durationStr.replace("s", "").toIntOrNull() ?: 5
 
-        binding.videoView.visibility = View.VISIBLE
-        binding.videoThumbnail.visibility = View.VISIBLE
-
         lifecycleScope.launch {
             try {
                 val response = grokApi.generateVideo(
@@ -195,6 +192,10 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 val videoData = response.data.first()
+
+                // Show views only after successful generation
+                binding.videoView.visibility = View.VISIBLE
+                binding.videoThumbnail.visibility = View.VISIBLE
 
                 // Handle thumbnail if available
                 videoData.thumbnail?.let { thumb ->
@@ -219,6 +220,9 @@ class MainActivity : AppCompatActivity() {
                     tempFile.writeBytes(videoBytes)
                     binding.videoView.setVideoURI(android.net.Uri.fromFile(tempFile))
                     setupVideoClickToPlay()
+                    
+                    // Schedule cleanup of temp file
+                    tempFile.deleteOnExit()
                 }
 
                 messages.add("Grok: Video generated! Click thumbnail to play.")
@@ -246,6 +250,7 @@ class MainActivity : AppCompatActivity() {
 
         // Show thumbnail again when video ends
         binding.videoView.setOnCompletionListener {
+            binding.videoView.visibility = View.GONE
             binding.videoThumbnail.visibility = View.VISIBLE
         }
     }
