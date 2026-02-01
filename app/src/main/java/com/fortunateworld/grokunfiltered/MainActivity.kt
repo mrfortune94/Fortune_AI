@@ -53,11 +53,11 @@ class MainActivity : AppCompatActivity() {
             val rawKey = binding.apiKeyInput.text.toString()
             val key = rawKey.trim()
             
-            // Debug logging
-            Log.d("MainActivity", "Raw API key input: '$rawKey'")
-            Log.d("MainActivity", "Trimmed API key input: '$key'")
+            // Debug logging (only log prefix and length for security)
+            Log.d("MainActivity", "API key prefix: ${key.take(4)}, length: ${key.length}")
             
             // Validate: accept keys starting with "sk-" or "xai" (case-insensitive)
+            // Different minimum lengths: sk- keys are typically 40+ chars, xai keys are shorter
             val isValidSkKey = key.startsWith("sk-", ignoreCase = true) && key.length > 30
             val isValidXaiKey = key.startsWith("xai", ignoreCase = true) && key.length > 20
             
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 ).show()
                 
                 // Keep the error message in chat history
-                messages.add("Grok: Invalid key – must start with sk- and be long enough.")
+                messages.add("Grok: Invalid key – must start with 'sk-' or 'xai' and be long enough.")
                 updateChat()
             }
         }
