@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                 } else if (imageData.b64Json != null) {
                     // Decode base64 and display
                     val imageBytes = Base64.decode(imageData.b64Json, Base64.DEFAULT)
-                    val file = File(cacheDir, "temp_image.jpg")
+                    val file = File(cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
                     FileOutputStream(file).use { it.write(imageBytes) }
                     binding.generatedImage.load(file)
                 }
@@ -161,6 +161,13 @@ class MainActivity : AppCompatActivity() {
                 updateChat()
             }
         }
+    }
+
+    private fun setupVideoPlayer(videoView: android.widget.VideoView) {
+        val mediaController = MediaController(this@MainActivity)
+        mediaController.setAnchorView(videoView)
+        videoView.setMediaController(mediaController)
+        videoView.start()
     }
 
     private fun generateVideo() {
@@ -184,21 +191,15 @@ class MainActivity : AppCompatActivity() {
                 if (videoData.url != null) {
                     // Play from URL
                     binding.generatedVideoView.setVideoURI(Uri.parse(videoData.url))
-                    val mediaController = MediaController(this@MainActivity)
-                    mediaController.setAnchorView(binding.generatedVideoView)
-                    binding.generatedVideoView.setMediaController(mediaController)
-                    binding.generatedVideoView.start()
+                    setupVideoPlayer(binding.generatedVideoView)
                     messages.add("Video generated: ${videoData.url}")
                 } else if (videoData.b64Json != null) {
                     // Decode base64 and play from file
                     val videoBytes = Base64.decode(videoData.b64Json, Base64.DEFAULT)
-                    val file = File(cacheDir, "temp_video.mp4")
+                    val file = File(cacheDir, "temp_video_${System.currentTimeMillis()}.mp4")
                     FileOutputStream(file).use { it.write(videoBytes) }
                     binding.generatedVideoView.setVideoURI(Uri.fromFile(file))
-                    val mediaController = MediaController(this@MainActivity)
-                    mediaController.setAnchorView(binding.generatedVideoView)
-                    binding.generatedVideoView.setMediaController(mediaController)
-                    binding.generatedVideoView.start()
+                    setupVideoPlayer(binding.generatedVideoView)
                     messages.add("Video generated and saved locally")
                 }
             } catch (e: Exception) {
