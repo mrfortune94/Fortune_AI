@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         binding.saveKeyButton.setOnClickListener {
             val key = binding.apiKeyInput.text.toString().trim()
             val keyLower = key.lowercase()
-            val isValid = (keyLower.startsWith("sk-") || keyLower.startsWith("xai")) && key.length > 10
+            val isValid = (keyLower.startsWith("sk-") || keyLower.startsWith("xai")) && key.length > 20
             
             if (isValid) {
                 prefs.edit().putString("grok_api_key", key).apply()
