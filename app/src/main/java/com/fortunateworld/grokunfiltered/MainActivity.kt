@@ -16,6 +16,11 @@ class MainActivity : AppCompatActivity() {
     private val grokApi = ApiClient.grokApi
     private val messages = mutableListOf<String>()
     private val prefs by lazy { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
+    
+    companion object {
+        private const val MIN_SK_KEY_LENGTH = 31
+        private const val MIN_XAI_KEY_LENGTH = 21
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +56,11 @@ class MainActivity : AppCompatActivity() {
         // Save key button
         binding.saveKeyButton.setOnClickListener {
             val key = binding.apiKeyInput.text.toString().trim()
-            Log.d("MainActivity", "Raw input: '${binding.apiKeyInput.text}', Trimmed: '$key'")
+            Log.d("MainActivity", "API key input - Length: ${key.length}, Starts with: ${key.take(3)}")
             
             // Accept keys starting with "sk-" or "xai" (case-insensitive)
-            val isValidSkKey = key.startsWith("sk-", ignoreCase = true) && key.length > 30
-            val isValidXaiKey = key.startsWith("xai", ignoreCase = true) && key.length > 20
+            val isValidSkKey = key.startsWith("sk-", ignoreCase = true) && key.length >= MIN_SK_KEY_LENGTH
+            val isValidXaiKey = key.startsWith("xai", ignoreCase = true) && key.length >= MIN_XAI_KEY_LENGTH
             
             if (isValidSkKey || isValidXaiKey) {
                 // Success: save and show chat UI
@@ -77,10 +82,10 @@ class MainActivity : AppCompatActivity() {
                 binding.apiKeyInput.error = "Invalid API key format"
                 Toast.makeText(
                     this, 
-                    "API key must start with 'sk-' or 'xai' and be long enough", 
+                    "API key must start with 'sk-' (min $MIN_SK_KEY_LENGTH chars) or 'xai' (min $MIN_XAI_KEY_LENGTH chars)", 
                     Toast.LENGTH_LONG
                 ).show()
-                messages.add("Grok: Invalid key – must start with sk- or xai and be long enough.")
+                messages.add("Grok: Invalid key – must start with sk- (min $MIN_SK_KEY_LENGTH chars) or xai (min $MIN_XAI_KEY_LENGTH chars).")
                 updateChat()
             }
         }
