@@ -116,4 +116,61 @@
         android:layout_marginTop="16dp"
         android:visibility="gone"
         android:contentDescription="Generated Grok babe" />
+
+    <!-- Video Generation Section -->
+    <EditText
+        android:id="@+id/videoPromptInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Video prompt (e.g., 'Hot Grok babe dancing')"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/videoDurationInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Duration in seconds (recommended: 10)"
+        android:inputType="number"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:padding="12dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/generateVideoButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Video"
+        android:backgroundTint="#FF4081"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/videoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/videoThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Video thumbnail" />
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>
