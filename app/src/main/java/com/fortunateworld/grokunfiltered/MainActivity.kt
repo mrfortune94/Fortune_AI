@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val MIN_SK_KEY_LENGTH = 31
         private const val MIN_XAI_KEY_LENGTH = 21
+        private const val TAG = "MainActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,11 +57,12 @@ class MainActivity : AppCompatActivity() {
         // Save key button
         binding.saveKeyButton.setOnClickListener {
             val key = binding.apiKeyInput.text.toString().trim()
-            Log.d("MainActivity", "API key input - Length: ${key.length}, Starts with: ${key.take(3)}")
             
             // Accept keys starting with "sk-" or "xai" (case-insensitive)
             val isValidSkKey = key.startsWith("sk-", ignoreCase = true) && key.length >= MIN_SK_KEY_LENGTH
             val isValidXaiKey = key.startsWith("xai", ignoreCase = true) && key.length >= MIN_XAI_KEY_LENGTH
+            
+            Log.d(TAG, "API key validation - Length: ${key.length}, Valid: ${isValidSkKey || isValidXaiKey}")
             
             if (isValidSkKey || isValidXaiKey) {
                 // Success: save and show chat UI
@@ -79,13 +81,10 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
                 // Failure: show error feedback
+                val errorMessage = "API key must start with 'sk-' (min $MIN_SK_KEY_LENGTH chars) or 'xai' (min $MIN_XAI_KEY_LENGTH chars)"
                 binding.apiKeyInput.error = "Invalid API key format"
-                Toast.makeText(
-                    this, 
-                    "API key must start with 'sk-' (min $MIN_SK_KEY_LENGTH chars) or 'xai' (min $MIN_XAI_KEY_LENGTH chars)", 
-                    Toast.LENGTH_LONG
-                ).show()
-                messages.add("Grok: Invalid key – must start with sk- (min $MIN_SK_KEY_LENGTH chars) or xai (min $MIN_XAI_KEY_LENGTH chars).")
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                messages.add("Grok: Invalid key – $errorMessage.")
                 updateChat()
             }
         }
