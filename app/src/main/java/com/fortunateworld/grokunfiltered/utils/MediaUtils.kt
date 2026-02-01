@@ -19,7 +19,7 @@ object MediaUtils {
      */
     suspend fun decodeBase64ToFile(context: Context, b64: String, extension: String = "mp4"): String = withContext(Dispatchers.IO) {
         val decoded = Base64.decode(b64, Base64.DEFAULT)
-        val file = File(context.cacheDir, "media_${System.currentTimeMillis()}.$extension")
+        val file = File(context.cacheDir, "grok_media_${System.currentTimeMillis()}.$extension")
         FileOutputStream(file).use { it.write(decoded) }
         file.absolutePath
     }

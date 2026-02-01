@@ -208,7 +208,9 @@ class MainActivity : AppCompatActivity() {
                 
                 if (videoPath != null) {
                     // Remove placeholder message
-                    messages.removeAt(messages.lastIndex)
+                    if (messages.isNotEmpty() && messages.last() == "Grok: Generating video...") {
+                        messages.removeAt(messages.lastIndex)
+                    }
                     messages.add("Grok: Video generated! Click thumbnail to play.")
                     updateChat()
                     
@@ -242,7 +244,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 // Remove placeholder message
-                if (messages.lastOrNull() == "Grok: Generating video...") {
+                if (messages.isNotEmpty() && messages.last() == "Grok: Generating video...") {
                     messages.removeAt(messages.lastIndex)
                 }
                 messages.add("Error generating video: ${e.message}")
