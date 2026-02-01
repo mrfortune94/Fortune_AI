@@ -2,7 +2,9 @@ package com.fortunateworld.grokunfiltered
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -14,6 +16,12 @@ class MainActivity : AppCompatActivity() {
     private val grokApi = ApiClient.grokApi
     private val messages = mutableListOf<String>()
     private val prefs by lazy { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
+    
+    companion object {
+        private const val MIN_SK_KEY_LENGTH = 31
+        private const val MIN_XAI_KEY_LENGTH = 21
+        private const val TAG = "MainActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +57,15 @@ class MainActivity : AppCompatActivity() {
         // Save key button
         binding.saveKeyButton.setOnClickListener {
             val key = binding.apiKeyInput.text.toString().trim()
-            if (key.startsWith("sk-") && key.length > 30) {
+            
+            // Accept keys starting with "sk-" or "xai" (case-insensitive)
+            val isValidSkKey = key.startsWith("sk-", ignoreCase = true) && key.length >= MIN_SK_KEY_LENGTH
+            val isValidXaiKey = key.startsWith("xai", ignoreCase = true) && key.length >= MIN_XAI_KEY_LENGTH
+            
+            Log.d(TAG, "API key validation - Length: ${key.length}, Valid: ${isValidSkKey || isValidXaiKey}")
+            
+            if (isValidSkKey || isValidXaiKey) {
+                // Success: save and show chat UI
                 prefs.edit().putString("grok_api_key", key).apply()
                 ApiClient.updateApiKey(key)
                 binding.apiKeyLayout.visibility = View.GONE
@@ -61,8 +77,14 @@ class MainActivity : AppCompatActivity() {
 
                 messages.add("Grok: Key saved! Let's play dirty 💋")
                 updateChat()
+                
+                Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
-                messages.add("Grok: Invalid key – must start with sk- and be long enough.")
+                // Failure: show error feedback
+                val errorMessage = "API key must start with 'sk-' (min $MIN_SK_KEY_LENGTH chars) or 'xai' (min $MIN_XAI_KEY_LENGTH chars)"
+                binding.apiKeyInput.error = "Invalid API key format"
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                messages.add("Grok: Invalid key – $errorMessage.")
                 updateChat()
             }
         }
