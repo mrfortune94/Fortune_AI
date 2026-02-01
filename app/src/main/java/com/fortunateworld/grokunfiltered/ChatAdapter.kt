@@ -100,7 +100,7 @@ class ChatAdapter(
                     val bitmap = withContext(Dispatchers.IO) {
                         val retriever = MediaMetadataRetriever()
                         try {
-                            retriever.setDataSource(videoUrl, HashMap())
+                            retriever.setDataSource(videoUrl)
                             retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
                         } catch (e: Exception) {
                             Log.e("VideoViewHolder", "Failed to generate thumbnail", e)
@@ -146,8 +146,6 @@ class ChatAdapter(
                 playOverlay.visibility = View.VISIBLE
                 true
             }
-
-            videoView.start()
         }
     }
 }

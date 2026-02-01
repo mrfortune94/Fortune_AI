@@ -204,7 +204,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         val durationStr = binding.videoDurationInput.text.toString().trim()
-        val duration = if (durationStr.isEmpty()) 10 else durationStr.toIntOrNull() ?: 10
+        val duration = if (durationStr.isEmpty()) {
+            10
+        } else {
+            durationStr.toIntOrNull()?.also {
+                if (it <= 0) {
+                    Toast.makeText(this, "Invalid duration, using default 10 seconds", Toast.LENGTH_SHORT).show()
+                }
+            } ?: run {
+                Toast.makeText(this, "Invalid duration input, using default 10 seconds", Toast.LENGTH_SHORT).show()
+                10
+            }
+        }
 
         // Add "Generating video..." message
         val generatingIndex = chatMessages.size
