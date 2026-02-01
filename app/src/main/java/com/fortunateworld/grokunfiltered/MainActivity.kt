@@ -20,7 +20,19 @@ class MainActivity : AppCompatActivity() {
     companion object {
         // Minimum key length to prevent accepting short garbage strings
         private const val MIN_API_KEY_LENGTH = 20
-        private const val INVALID_KEY_ERROR_MESSAGE = "Invalid key — must start with sk- or xai and be long enough."
+        private const val INVALID_KEY_ERROR_MESSAGE = "Invalid key — must start with sk- or xai- and be long enough."
+
+        /**
+         * Validates API key format.
+         * Returns true when the key starts with "sk-" or "xai-" (case-insensitive)
+         * AND key.length >= MIN_API_KEY_LENGTH.
+         */
+        @JvmStatic
+        fun isValidApiKey(key: String): Boolean {
+            val hasValidPrefix = key.startsWith("sk-", ignoreCase = true) || 
+                                 key.startsWith("xai-", ignoreCase = true)
+            return hasValidPrefix && key.length >= MIN_API_KEY_LENGTH
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             binding.generateImageButton.visibility = View.VISIBLE
             binding.generatedImage.visibility = View.GONE  // Hidden until gen
 
-            ApiClient.updateApiKey(savedKey)
+            ApiClient.updateApiKey(savedKey.trim())
             messages.add("Grok: Key loaded! Ready to get filthy 😈💦")
             updateChat()
         }
@@ -60,11 +72,9 @@ class MainActivity : AppCompatActivity() {
             val key = keyRaw.trim()
             Log.d("APIKeyScreen", "Save clicked — raw:'$keyRaw' trimmed:'$key'")
 
-            // Accept either standard 'sk-' keys or xai-prefixed keys (case-insensitive).
-            val isValidPrefix = key.startsWith("sk-", ignoreCase = true) || key.startsWith("xai", ignoreCase = true)
-            if (isValidPrefix && key.length > 20) {
+            if (isValidApiKey(key)) {
                 prefs.edit().putString("grok_api_key", key).apply()
-                ApiClient.updateApiKey(key)
+                ApiClient.updateApiKey(key.trim())
 
                 binding.apiKeyLayout.visibility = View.GONE
                 binding.chatScroll.visibility = View.VISIBLE
@@ -79,11 +89,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
                 // Visible feedback so the user knows why save failed
-                binding.apiKeyInput.error = "Invalid key — must start with sk- or xai and be long enough."
-                Toast.makeText(this, "Invalid API key — must start with sk- or xai and be long enough.", Toast.LENGTH_LONG).show()
+                binding.apiKeyInput.error = INVALID_KEY_ERROR_MESSAGE
+                Toast.makeText(this, INVALID_KEY_ERROR_MESSAGE, Toast.LENGTH_LONG).show()
 
                 // Keep the existing chat message for history
-                messages.add("Grok: Invalid key – must start with sk- or xai and be long enough.")
+                messages.add("Grok: $INVALID_KEY_ERROR_MESSAGE")
                 updateChat()
             }
         }
