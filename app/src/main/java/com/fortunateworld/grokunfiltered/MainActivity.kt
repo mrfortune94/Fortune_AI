@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         // Minimum key length to prevent accepting short garbage strings
         private const val MIN_API_KEY_LENGTH = 20
+        private const val INVALID_KEY_ERROR_MESSAGE = "Invalid key — must start with sk- or xai and be long enough."
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
             val keyRaw = binding.apiKeyInput.text?.toString() ?: ""
             val key = keyRaw.trim()
             // Log metadata only (not the actual key) for security
-            Log.d("APIKeyScreen", "Save clicked — key length: ${key.length}, prefix: ${key.take(4)}")
+            Log.d("APIKeyScreen", "Save clicked — key length: ${key.length}")
 
             // Accept either standard 'sk-' keys or xai-prefixed keys (case-insensitive).
             val isValidPrefix = key.startsWith("sk-", ignoreCase = true) || key.startsWith("xai", ignoreCase = true)
@@ -79,8 +80,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
                 // Visible feedback so the user knows why save failed
-                binding.apiKeyInput.error = "Invalid key — must start with sk- or xai and be long enough."
-                Toast.makeText(this, "Invalid API key — must start with sk- or xai and be long enough.", Toast.LENGTH_LONG).show()
+                binding.apiKeyInput.error = INVALID_KEY_ERROR_MESSAGE
+                Toast.makeText(this, "Invalid API key — $INVALID_KEY_ERROR_MESSAGE", Toast.LENGTH_LONG).show()
 
                 // Keep the existing chat message for history
                 messages.add("Grok: Invalid key – must start with sk- or xai and be long enough.")
