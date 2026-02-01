@@ -17,6 +17,12 @@ class MainActivity : AppCompatActivity() {
     private val messages = mutableListOf<String>()
     private val prefs by lazy { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
 
+    companion object {
+        // Minimum key length to prevent accepting short garbage strings
+        private const val MIN_API_KEY_LENGTH = 20
+        private const val INVALID_KEY_ERROR_MESSAGE = "Invalid key — must start with sk- or xai and be long enough."
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
