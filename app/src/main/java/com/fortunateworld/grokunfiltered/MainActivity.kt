@@ -1,6 +1,8 @@
 package com.fortunateworld.grokunfiltered
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
@@ -256,6 +258,34 @@ class MainActivity : AppCompatActivity() {
                     binding.videoContainer.visibility = View.VISIBLE
                     binding.videoView.setVideoURI(videoUri)
                     
+                    // Handle thumbnail display
+                    if (videoData.thumbnailUrl != null) {
+                        // Load API-provided thumbnail
+                        binding.videoThumbnail.visibility = View.VISIBLE
+                        binding.videoPlayOverlay.visibility = View.VISIBLE
+                        binding.videoThumbnail.load(videoData.thumbnailUrl)
+                    } else {
+                        // Extract first-frame thumbnail asynchronously
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                val retriever = MediaMetadataRetriever()
+                                retriever.setDataSource(this@MainActivity, videoUri)
+                                val bitmap = retriever.getFrameAtTime(0)
+                                retriever.release()
+                                
+                                withContext(Dispatchers.Main) {
+                                    if (bitmap != null) {
+                                        binding.videoThumbnail.visibility = View.VISIBLE
+                                        binding.videoPlayOverlay.visibility = View.VISIBLE
+                                        binding.videoThumbnail.setImageBitmap(bitmap)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("VideoThumbnail", "Failed to extract thumbnail", e)
+                            }
+                        }
+                    }
+                    
                     val mediaController = MediaController(this@MainActivity)
                     mediaController.setAnchorView(binding.videoView)
                     binding.videoView.setMediaController(mediaController)
@@ -264,6 +294,15 @@ class MainActivity : AppCompatActivity() {
                         mp.isLooping = false
                     }
                     
+                    // Click-to-play functionality
+                    val playVideo = {
+                        binding.videoThumbnail.visibility = View.GONE
+                        binding.videoPlayOverlay.visibility = View.GONE
+                        binding.videoView.start()
+                    }
+                    
+                    binding.videoThumbnail.setOnClickListener { playVideo() }
+                    binding.videoPlayOverlay.setOnClickListener { playVideo() }
                     binding.videoView.setOnClickListener {
                         if (binding.videoView.isPlaying) {
                             binding.videoView.pause()
@@ -271,9 +310,6 @@ class MainActivity : AppCompatActivity() {
                             binding.videoView.start()
                         }
                     }
-                    
-                    // Auto-start playback
-                    binding.videoView.start()
                 }
             } catch (e: Exception) {
                 // Remove "Generating video..." message

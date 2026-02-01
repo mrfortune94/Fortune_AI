@@ -171,5 +171,22 @@
             android:id="@+id/videoView"
             android:layout_width="match_parent"
             android:layout_height="300dp" />
+        
+        <ImageView
+            android:id="@+id/videoThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:contentDescription="Video thumbnail" />
+        
+        <ImageView
+            android:id="@+id/videoPlayOverlay"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_media_play"
+            android:visibility="gone"
+            android:contentDescription="Play video" />
     </FrameLayout>
 </LinearLayout>
