@@ -3,6 +3,7 @@ package com.fortunateworld.grokunfiltered
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -49,7 +50,10 @@ class MainActivity : AppCompatActivity() {
         // Save key button
         binding.saveKeyButton.setOnClickListener {
             val key = binding.apiKeyInput.text.toString().trim()
-            if (key.startsWith("sk-") && key.length > 30) {
+            val keyLower = key.lowercase()
+            val isValid = (keyLower.startsWith("sk-") || keyLower.startsWith("xai")) && key.length > 10
+            
+            if (isValid) {
                 prefs.edit().putString("grok_api_key", key).apply()
                 ApiClient.updateApiKey(key)
                 binding.apiKeyLayout.visibility = View.GONE
@@ -61,9 +65,10 @@ class MainActivity : AppCompatActivity() {
 
                 messages.add("Grok: Key saved! Let's play dirty 💋")
                 updateChat()
+                Toast.makeText(this, "API key saved successfully!", Toast.LENGTH_SHORT).show()
             } else {
-                messages.add("Grok: Invalid key – must start with sk- and be long enough.")
-                updateChat()
+                binding.apiKeyInput.error = "Invalid API key format"
+                Toast.makeText(this, "Invalid API key – must start with sk- or xai", Toast.LENGTH_LONG).show()
             }
         }
 
