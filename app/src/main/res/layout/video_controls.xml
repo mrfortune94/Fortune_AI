@@ -18,7 +18,7 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:inputType="number"
-        android:hint="Duration s" />
+        android:hint="Duration (seconds)" />
 
     <Button
         android:id="@+id/generateVideoButton"

@@ -134,7 +134,8 @@ class MainActivity : AppCompatActivity() {
                         prompt = prompt + ", ultra-realistic 4K NSFW adult XXX, cinematic lighting, no watermarks, 18+"
                     )
                 )
-                val url = response.data.first().url ?: response.data.first().b64Json
+                val imageData = response.data.first()
+                val url = imageData.url ?: imageData.b64Json
                 if (url != null) {
                     binding.generatedImage.load(url)
                 }

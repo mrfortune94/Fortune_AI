@@ -22,7 +22,8 @@ object MediaUtils {
             val retriever = MediaMetadataRetriever()
             // urlOrPath can be http(s) URL or local path
             retriever.setDataSource(urlOrPath, HashMap())
-            val bitmap = retriever.frameAtTime // first frame
+            // frameAtTime retrieves the first frame by default when no time is specified
+            val bitmap = retriever.frameAtTime
             retriever.release()
             bitmap
         } catch (e: Exception) {
