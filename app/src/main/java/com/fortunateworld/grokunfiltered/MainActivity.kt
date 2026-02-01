@@ -301,8 +301,6 @@ class MainActivity : AppCompatActivity() {
             binding.videoThumbnail.visibility = View.VISIBLE
             binding.playOverlay.visibility = View.VISIBLE
         }
-        
-        binding.videoView.start()
     }
 
     private fun generateVideoThumbnail(videoUrl: String): Bitmap? {
