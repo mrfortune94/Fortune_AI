@@ -116,4 +116,77 @@
         android:layout_marginTop="16dp"
         android:visibility="gone"
         android:contentDescription="Generated Grok babe" />
+
+    <EditText
+        android:id="@+id/videoPromptInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Prompt for XXX Grok video"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:id="@+id/videoDurationLayout">
+
+        <EditText
+            android:id="@+id/videoDurationInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Duration (s, recommend 10)"
+            android:inputType="number"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:backgroundTint="#333333"
+            android:padding="12dp"
+            android:text="10" />
+
+        <Button
+            android:id="@+id/generateVideoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate Video"
+            android:backgroundTint="#FF4081"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/videoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp" />
+        
+        <ImageView
+            android:id="@+id/videoThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:contentDescription="Video thumbnail" />
+        
+        <ImageView
+            android:id="@+id/videoPlayOverlay"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_media_play"
+            android:visibility="gone"
+            android:contentDescription="Play video" />
+    </FrameLayout>
 </LinearLayout>
