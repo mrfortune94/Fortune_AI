@@ -58,12 +58,11 @@ class MainActivity : AppCompatActivity() {
         binding.saveKeyButton.setOnClickListener {
             val keyRaw = binding.apiKeyInput.text?.toString() ?: ""
             val key = keyRaw.trim()
-            // Log metadata only (not the actual key) for security
-            Log.d("APIKeyScreen", "Save clicked — key length: ${key.length}")
+            Log.d("APIKeyScreen", "Save clicked — raw:'$keyRaw' trimmed:'$key'")
 
             // Accept either standard 'sk-' keys or xai-prefixed keys (case-insensitive).
             val isValidPrefix = key.startsWith("sk-", ignoreCase = true) || key.startsWith("xai", ignoreCase = true)
-            if (isValidPrefix && key.length > MIN_API_KEY_LENGTH) {
+            if (isValidPrefix && key.length > 20) {
                 prefs.edit().putString("grok_api_key", key).apply()
                 ApiClient.updateApiKey(key)
 
@@ -80,8 +79,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
                 // Visible feedback so the user knows why save failed
-                binding.apiKeyInput.error = INVALID_KEY_ERROR_MESSAGE
-                Toast.makeText(this, "Invalid API key — $INVALID_KEY_ERROR_MESSAGE", Toast.LENGTH_LONG).show()
+                binding.apiKeyInput.error = "Invalid key — must start with sk- or xai and be long enough."
+                Toast.makeText(this, "Invalid API key — must start with sk- or xai and be long enough.", Toast.LENGTH_LONG).show()
 
                 // Keep the existing chat message for history
                 messages.add("Grok: Invalid key – must start with sk- or xai and be long enough.")
