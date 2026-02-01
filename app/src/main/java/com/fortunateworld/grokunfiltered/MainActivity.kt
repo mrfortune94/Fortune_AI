@@ -267,11 +267,11 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         // Extract first-frame thumbnail asynchronously
                         lifecycleScope.launch(Dispatchers.IO) {
+                            var retriever: MediaMetadataRetriever? = null
                             try {
-                                val retriever = MediaMetadataRetriever()
+                                retriever = MediaMetadataRetriever()
                                 retriever.setDataSource(this@MainActivity, videoUri)
                                 val bitmap = retriever.getFrameAtTime(0)
-                                retriever.release()
                                 
                                 withContext(Dispatchers.Main) {
                                     if (bitmap != null) {
@@ -282,6 +282,8 @@ class MainActivity : AppCompatActivity() {
                                 }
                             } catch (e: Exception) {
                                 Log.e("VideoThumbnail", "Failed to extract thumbnail", e)
+                            } finally {
+                                retriever?.release()
                             }
                         }
                     }
@@ -295,14 +297,14 @@ class MainActivity : AppCompatActivity() {
                     }
                     
                     // Click-to-play functionality
-                    val playVideo = {
+                    val startVideoPlayback = {
                         binding.videoThumbnail.visibility = View.GONE
                         binding.videoPlayOverlay.visibility = View.GONE
                         binding.videoView.start()
                     }
                     
-                    binding.videoThumbnail.setOnClickListener { playVideo() }
-                    binding.videoPlayOverlay.setOnClickListener { playVideo() }
+                    binding.videoThumbnail.setOnClickListener { startVideoPlayback() }
+                    binding.videoPlayOverlay.setOnClickListener { startVideoPlayback() }
                     binding.videoView.setOnClickListener {
                         if (binding.videoView.isPlaying) {
                             binding.videoView.pause()
