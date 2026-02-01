@@ -116,4 +116,81 @@
         android:layout_marginTop="16dp"
         android:visibility="gone"
         android:contentDescription="Generated Grok babe" />
+
+    <!-- Video Generation Controls -->
+    <EditText
+        android:id="@+id/videoPromptInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Video prompt (e.g., 'cinematic sunset over ocean')"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/videoDurationInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Duration in seconds (recommended: 10)"
+        android:inputType="number"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        android:backgroundTint="#333333"
+        android:padding="12dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/videoDurationHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="💡 Recommended: 10s. Very large durations may be rejected by API."
+        android:textColor="#AAAAAA"
+        android:textSize="12sp"
+        android:padding="4dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/generateVideoButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Video"
+        android:backgroundTint="#FF4081"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <!-- Video Player Container -->
+    <FrameLayout
+        android:id="@+id/videoPlayerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/videoThumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/playOverlay"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_media_play"
+            android:background="@android:drawable/dialog_holo_dark_frame"
+            android:alpha="0.8"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>
