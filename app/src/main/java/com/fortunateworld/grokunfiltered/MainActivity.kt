@@ -17,6 +17,11 @@ class MainActivity : AppCompatActivity() {
     private val messages = mutableListOf<String>()
     private val prefs by lazy { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
 
+    companion object {
+        // Minimum key length to prevent accepting short garbage strings
+        private const val MIN_API_KEY_LENGTH = 20
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -52,11 +57,12 @@ class MainActivity : AppCompatActivity() {
         binding.saveKeyButton.setOnClickListener {
             val keyRaw = binding.apiKeyInput.text?.toString() ?: ""
             val key = keyRaw.trim()
-            Log.d("APIKeyScreen", "Save clicked — raw:'$keyRaw' trimmed:'$key'")
+            // Log metadata only (not the actual key) for security
+            Log.d("APIKeyScreen", "Save clicked — key length: ${key.length}, prefix: ${key.take(4)}")
 
             // Accept either standard 'sk-' keys or xai-prefixed keys (case-insensitive).
             val isValidPrefix = key.startsWith("sk-", ignoreCase = true) || key.startsWith("xai", ignoreCase = true)
-            if (isValidPrefix && key.length > 20) {
+            if (isValidPrefix && key.length > MIN_API_KEY_LENGTH) {
                 prefs.edit().putString("grok_api_key", key).apply()
                 ApiClient.updateApiKey(key)
 
