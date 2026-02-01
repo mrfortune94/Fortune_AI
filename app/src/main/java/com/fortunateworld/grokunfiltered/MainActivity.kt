@@ -2,7 +2,9 @@ package com.fortunateworld.grokunfiltered
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -48,10 +50,26 @@ class MainActivity : AppCompatActivity() {
 
         // Save key button
         binding.saveKeyButton.setOnClickListener {
-            val key = binding.apiKeyInput.text.toString().trim()
-            if (key.startsWith("sk-") && key.length > 30) {
+            val rawKey = binding.apiKeyInput.text.toString()
+            val key = rawKey.trim()
+            
+            // Debug logging (only log prefix and length for security)
+            Log.d("MainActivity", "API key prefix: ${key.take(4)}, length: ${key.length}")
+            
+            // Validate: accept keys starting with "sk-" or "xai" (case-insensitive)
+            // Different minimum lengths: sk- keys are typically 40+ chars, xai keys are shorter
+            val isValidSkKey = key.startsWith("sk-", ignoreCase = true) && key.length > 30
+            val isValidXaiKey = key.startsWith("xai", ignoreCase = true) && key.length > 20
+            
+            if (isValidSkKey || isValidXaiKey) {
+                // Clear any previous error
+                binding.apiKeyInput.error = null
+                
+                // Save and update
                 prefs.edit().putString("grok_api_key", key).apply()
                 ApiClient.updateApiKey(key)
+                
+                // Hide API input layout, show chat UI
                 binding.apiKeyLayout.visibility = View.GONE
                 binding.chatScroll.visibility = View.VISIBLE
                 binding.messageInput.visibility = View.VISIBLE
@@ -59,10 +77,23 @@ class MainActivity : AppCompatActivity() {
                 binding.imagePromptInput.visibility = View.VISIBLE
                 binding.generateImageButton.visibility = View.VISIBLE
 
+                // Add success message and update chat
                 messages.add("Grok: Key saved! Let's play dirty 💋")
                 updateChat()
+                
+                // Show success toast
+                Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
-                messages.add("Grok: Invalid key – must start with sk- and be long enough.")
+                // Show error feedback
+                binding.apiKeyInput.error = "API key must start with 'sk-' or 'xai'"
+                Toast.makeText(
+                    this, 
+                    "Invalid API key. Must start with 'sk-' or 'xai'", 
+                    Toast.LENGTH_LONG
+                ).show()
+                
+                // Keep the error message in chat history
+                messages.add("Grok: Invalid key – must start with 'sk-' or 'xai' and be long enough.")
                 updateChat()
             }
         }
