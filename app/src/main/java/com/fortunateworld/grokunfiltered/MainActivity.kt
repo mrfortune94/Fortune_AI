@@ -13,6 +13,7 @@ import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.fortunateworld.grokunfiltered.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
@@ -24,9 +25,9 @@ import java.io.FileOutputStream
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val grokApi = ApiClient.grokApi
-    private val messages = mutableListOf<String>()
+    private val chatMessages = mutableListOf<ChatMessage>()
+    private lateinit var chatAdapter: ChatAdapter
     private val prefs by lazy { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
-    private var currentVideoView: VideoView? = null
 
     companion object {
         // Minimum key length to prevent accepting short garbage strings
@@ -39,12 +40,19 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Setup RecyclerView
+        chatAdapter = ChatAdapter(chatMessages, lifecycleScope)
+        binding.chatRecyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = chatAdapter
+        }
+
         // Check if key is saved
         val savedKey = prefs.getString("grok_api_key", null)
         if (savedKey.isNullOrBlank()) {
             // Show key input, hide chat UI
             binding.apiKeyLayout.visibility = View.VISIBLE
-            binding.chatScroll.visibility = View.GONE
+            binding.chatRecyclerView.visibility = View.GONE
             binding.messageInput.visibility = View.GONE
             binding.sendButton.visibility = View.GONE
             binding.imagePromptInput.visibility = View.GONE
@@ -56,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             // Key saved – hide input, show chat, set key
             binding.apiKeyLayout.visibility = View.GONE
-            binding.chatScroll.visibility = View.VISIBLE
+            binding.chatRecyclerView.visibility = View.VISIBLE
             binding.messageInput.visibility = View.VISIBLE
             binding.sendButton.visibility = View.VISIBLE
             binding.imagePromptInput.visibility = View.VISIBLE
@@ -67,8 +75,9 @@ class MainActivity : AppCompatActivity() {
             binding.generateVideoButton.visibility = View.VISIBLE
 
             ApiClient.updateApiKey(savedKey)
-            messages.add("Grok: Key loaded! Ready to get filthy 😈💦")
-            updateChat()
+            chatMessages.add(ChatMessage.Text("Grok", "Key loaded! Ready to get filthy 😈💦"))
+            chatAdapter.notifyDataSetChanged()
+            scrollToBottom()
         }
 
         // Save key button
@@ -84,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 ApiClient.updateApiKey(key)
 
                 binding.apiKeyLayout.visibility = View.GONE
-                binding.chatScroll.visibility = View.VISIBLE
+                binding.chatRecyclerView.visibility = View.VISIBLE
                 binding.messageInput.visibility = View.VISIBLE
                 binding.sendButton.visibility = View.VISIBLE
                 binding.imagePromptInput.visibility = View.VISIBLE
@@ -93,8 +102,9 @@ class MainActivity : AppCompatActivity() {
                 binding.videoDurationInput.visibility = View.VISIBLE
                 binding.generateVideoButton.visibility = View.VISIBLE
 
-                messages.add("Grok: Key saved! Let's play dirty 💋")
-                updateChat()
+                chatMessages.add(ChatMessage.Text("Grok", "Key saved! Let's play dirty 💋"))
+                chatAdapter.notifyDataSetChanged()
+                scrollToBottom()
 
                 Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
             } else {
@@ -103,8 +113,9 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Invalid API key — must start with sk- or xai and be long enough.", Toast.LENGTH_LONG).show()
 
                 // Keep the existing chat message for history
-                messages.add("Grok: Invalid key – must start with sk- or xai and be long enough.")
-                updateChat()
+                chatMessages.add(ChatMessage.Text("Grok", "Invalid key – must start with sk- or xai and be long enough."))
+                chatAdapter.notifyDataSetChanged()
+                scrollToBottom()
             }
         }
 
@@ -117,8 +128,9 @@ class MainActivity : AppCompatActivity() {
         val input = binding.messageInput.text.toString().trim()
         if (input.isEmpty()) return
 
-        messages.add("You: $input")
-        updateChat()
+        chatMessages.add(ChatMessage.Text("You", input))
+        chatAdapter.notifyItemInserted(chatMessages.size - 1)
+        scrollToBottom()
         binding.messageInput.text.clear()
 
         lifecycleScope.launch {
@@ -131,13 +143,16 @@ class MainActivity : AppCompatActivity() {
                         )
                     )
                 )
-                messages.add("Grok: ${response.choices.first().message.content}")
+                chatMessages.add(ChatMessage.Text("Grok", response.choices.first().message.content))
+                chatAdapter.notifyItemInserted(chatMessages.size - 1)
+                scrollToBottom()
             } catch (e: Exception) {
                 val errorMsg = "Error: ${e.message}"
-                messages.add(errorMsg)
+                chatMessages.add(ChatMessage.Text("Error", e.message ?: "Unknown error"))
+                chatAdapter.notifyItemInserted(chatMessages.size - 1)
+                scrollToBottom()
                 Toast.makeText(this@MainActivity, errorMsg, Toast.LENGTH_LONG).show()
             }
-            updateChat()
         }
     }
 
@@ -173,9 +188,10 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 binding.generatedImage.setImageResource(android.R.drawable.ic_delete)
                 val errorMsg = "Error generating image: ${e.message}"
-                messages.add(errorMsg)
+                chatMessages.add(ChatMessage.Text("Error", e.message ?: "Unknown error generating image"))
+                chatAdapter.notifyItemInserted(chatMessages.size - 1)
+                scrollToBottom()
                 Toast.makeText(this@MainActivity, errorMsg, Toast.LENGTH_LONG).show()
-                updateChat()
             }
         }
     }
@@ -191,9 +207,10 @@ class MainActivity : AppCompatActivity() {
         val duration = if (durationStr.isEmpty()) 10 else durationStr.toIntOrNull() ?: 10
 
         // Add "Generating video..." message
-        val generatingIndex = messages.size
-        messages.add("Grok: Generating video...")
-        updateChat()
+        val generatingIndex = chatMessages.size
+        chatMessages.add(ChatMessage.Text("Grok", "Generating video..."))
+        chatAdapter.notifyItemInserted(generatingIndex)
+        scrollToBottom()
 
         lifecycleScope.launch {
             try {
@@ -225,12 +242,11 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     if (videoPath != null) {
-                        // Replace "Generating video..." with video playback message
-                        messages[generatingIndex] = "Grok: Video ready! [VIDEO:$videoPath:$thumbnailUrl]"
-                        updateChat()
-                        
-                        // Show a simple message for now (inline playback would require RecyclerView)
-                        Toast.makeText(this@MainActivity, "Video generated! Path: $videoPath", Toast.LENGTH_LONG).show()
+                        // Replace "Generating video..." with video message
+                        chatMessages.removeAt(generatingIndex)
+                        chatMessages.add(generatingIndex, ChatMessage.Video(videoPath, thumbnailUrl))
+                        chatAdapter.notifyItemChanged(generatingIndex)
+                        scrollToBottom()
                     } else {
                         throw Exception("No video URL or data returned")
                     }
@@ -239,15 +255,18 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 val errorMsg = "Error generating video: ${e.message}"
-                messages[generatingIndex] = errorMsg
+                chatMessages.removeAt(generatingIndex)
+                chatMessages.add(generatingIndex, ChatMessage.Text("Error", e.message ?: "Unknown error generating video"))
+                chatAdapter.notifyItemChanged(generatingIndex)
+                scrollToBottom()
                 Toast.makeText(this@MainActivity, errorMsg, Toast.LENGTH_LONG).show()
-                updateChat()
             }
         }
     }
 
-    private fun updateChat() {
-        binding.chatText.text = messages.joinToString("\n\n")
-        binding.chatScroll.fullScroll(View.FOCUS_DOWN)  // Scroll to bottom
+    private fun scrollToBottom() {
+        if (chatMessages.isNotEmpty()) {
+            binding.chatRecyclerView.scrollToPosition(chatMessages.size - 1)
+        }
     }
 }
