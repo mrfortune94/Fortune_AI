@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
             if (isValidApiKey(key)) {
                 prefs.edit().putString("grok_api_key", key).apply()
-                ApiClient.updateApiKey(key.trim())
+                ApiClient.updateApiKey(key)
 
                 binding.apiKeyLayout.visibility = View.GONE
                 binding.chatScroll.visibility = View.VISIBLE
