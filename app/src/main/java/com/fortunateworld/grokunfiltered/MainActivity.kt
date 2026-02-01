@@ -1,9 +1,6 @@
 package com.fortunateworld.grokunfiltered
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
@@ -31,12 +28,22 @@ class MainActivity : AppCompatActivity() {
         // Minimum key length to prevent accepting short garbage strings
         private const val MIN_API_KEY_LENGTH = 20
         private const val INVALID_KEY_ERROR_MESSAGE = "Invalid key — must start with sk- or xai and be long enough."
+        
+        // Clean up old temporary video files on app start
+        private fun cleanupOldTempFiles(context: Context) {
+            context.cacheDir.listFiles()?.filter { 
+                it.name.startsWith("grok_video_") && it.name.endsWith(".mp4")
+            }?.forEach { it.delete() }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        // Clean up old temporary video files
+        cleanupOldTempFiles(this)
 
         // Check if key is saved
         val savedKey = prefs.getString("grok_api_key", null)
@@ -131,8 +138,9 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 // Handle response - can have message or text field
-                val content = response.choices.firstOrNull()?.message?.content 
-                    ?: response.choices.firstOrNull()?.text 
+                val firstChoice = response.choices.firstOrNull()
+                val content = firstChoice?.message?.content 
+                    ?: firstChoice?.text 
                     ?: "No response"
                 messages.add("Grok: $content")
             } catch (e: Exception) {
